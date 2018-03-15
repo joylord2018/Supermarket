@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.ProviderDao">
+
+	<insert id="addProvider" parameterType="Provider">
+		INSERT INTO s_provider (procode,proname,procontact,prophone,proaddress,profax,prodesc)
+		VALUES(#{procode},#{proname},#{procontact},#{prophone},#{proaddress},#{profax},#{prodesc})
+	</insert>
+	   
+	<select id="checkAllByPage" resultType="Provider">
+		SELECT pid,procode,proname,procontact,prophone,proaddress,profax,createtionDate FROM `s_provider`LIMIT #{index},#{pageSize}
+	</select>
+	
+	<select id="findByPid" resultType="Provider" parameterType="int">
+		SELECT pid,procode,proname,procontact,prophone,proaddress,profax,prodesc
+		FROM s_provider
+		WHERE pid=#{pid};
+	</select>
+	
+	<select id="findByProCode" resultType="Provider" parameterType="String">
+		SELECT pid,procode,proname,procontact,prophone,proaddress,profax,prodesc
+		FROM s_provider
+		WHERE procode=#{procode};
+	</select>
+	
+	<delete id="deleteProvider" parameterType="int">
+			delete from s_provider where pid=#{pid}
+	</delete>
+
+	<update id="updateProvider" parameterType="Provider" >
+			update s_provider
+			<trim prefix="set" suffixOverrides="," suffix="where pid=#{pid}">
+			<if test="procode!=null">
+				procode=#{procode},
+			</if>
+			
+			<if test="proname!=null">
+				proname=#{proname},
+			</if>
+			
+			<if test="procontact!=null">
+				procontact=#{procontact},
+			</if>	
+			
+			<if test="prophone!=null">
+				prophone=#{prophone},
+			</if>	
+			
+			<if test="proaddress!=null">
+				proaddress=#{proaddress},
+			</if>	
+			
+			<if test="profax!=null">
+				profax=#{profax},
+			</if>
+			
+			<if test="prodesc!=null">
+				prodesc=#{prodesc},
+			</if>
+		</trim>
+	</update>
+	
+	<select id="getCount" resultType="int"><!-- 返回类型 -->
+		select count(*) from s_provider
+	</select>
+	
+	<select id="findByProperties" resultType="Provider">
+		<![CDATA[
+			SELECT pid,procode,proname,procontact,prophone,proaddress,profax,createtionDate FROM s_provider 
+		]]>
+		
+		<where>
+			<if test="provider.procode!=null">
+				<![CDATA[
+					procode like concat('%',#{provider.procode},'%')
+				]]>
+			</if>
+			
+			<if test="provider.proname!=null">
+				<![CDATA[
+					and proname like concat('%',#{provider.proname},'%')
+				]]>
+			</if>
+		</where>	
+	</select>
+</mapper>
+

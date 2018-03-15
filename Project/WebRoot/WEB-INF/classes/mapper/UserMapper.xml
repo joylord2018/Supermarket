@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.UserDao">
+
+	<insert id="addUser" parameterType="User">
+		insert into s_user(userCode,userName,userPassword,sex,birthday,phone,address,userRole,createBy,creationDate,idPic) 
+		values(#{userCode},#{userName},#{userPassword},#{sex},#{birthday},#{phone},#{address},#{userRole},#{createBy},#{creationDate},#{idPic})
+	</insert>
+	   
+	<select id="checkAllByPage" resultType="User">
+		SELECT u.userId,u.userCode,u.userName,u.sex,u.birthday,u.phone,u.address,r.roleName,u.createBy,u.creationDate,u.modifyBy,u.modifyDate  FROM `s_user` u JOIN s_role r ON u.userRole =r.rid LIMIT #{index},#{pageSize};
+	</select>
+	
+	<select id="findByUserId" resultType="User" parameterType="int">
+			SELECT u.userId,u.userCode,u.userName,u.sex,u.birthday,u.phone,u.address,r.roleName,u.createBy,u.creationDate,u.modifyBy,u.modifyDate,u.idPic  FROM `s_user` u JOIN s_role r ON u.userRole =r.rid WHERE u.userId=#{userId};
+	</select>
+	
+	<select id="findByUserCode" resultType="User" parameterType="String">
+			SELECT u.userId,u.userCode,u.userName,u.sex,u.birthday,u.phone,u.address,r.roleName,u.createBy,u.creationDate,u.modifyBy,u.modifyDate  FROM `s_user` u JOIN s_role r ON u.userRole =r.rid WHERE u.userCode=#{userCode};
+	</select>
+	
+	<select id="findByPage" resultType="User">
+			select * from s_user limit #{index},#{pageSize}
+	</select>	
+	
+	<delete id="deleteUser" parameterType="int">
+			delete from s_user where userId=#{userId}
+	</delete>
+
+	<update id="updateUser" parameterType="User">
+			update s_user 
+			<trim prefix="set" suffixOverrides="," suffix="where userId=#{userId}">
+			<if test="userName!=null">
+				userName=#{userName},
+			</if>
+			
+			<if test="sex!=null">
+				sex=#{sex},
+			</if>
+			
+			<if test="birthday!=null">
+				birthday=#{birthday},
+			</if>	
+			
+			<if test="phone!=null">
+				phone=#{phone},
+			</if>	
+			
+			<if test="address!=null">
+				address=#{address},
+			</if>	
+			
+			<if test="userRole!=0">
+				userRole=#{userRole},
+			</if>
+		</trim>
+	</update>
+	
+	<update id="updatePwdById">
+			UPDATE `s_user` SET userPassword=#{userPassword} WHERE userId=#{userId};
+	</update>
+	
+	<select id="findByUserCodeAndPwd" parameterType="String" resultType="User">
+			select * from s_user where userCode=#{userCode} and userPassword=#{userPassword}
+	</select>
+	
+	<select id="getCount" resultType="int"><!-- 返回类型 -->
+		select count(*) from s_user
+	</select>
+	
+	<select id="findByProperties" resultType="User">
+		<![CDATA[
+			select u.userId,u.userCode,u.userName,u.sex,u.birthday,u.phone,u.address,r.roleName,u.createBy,u.creationDate,u.modifyBy,u.modifyDate 
+ 			FROM `s_user` u 
+ 			JOIN s_role r 
+ 			ON u.userRole =r.rid 
+		]]>
+		
+		<where>
+			<if test="user.userName!=null">
+				<![CDATA[
+					 u.userName like concat('%',#{user.userName},'%')
+				]]>
+			</if>
+			
+			<if test="user.userRole!=0">
+				<![CDATA[
+					and u.userRole=#{user.userRole}
+				]]>
+			</if>
+		</where>	
+	</select>
+</mapper>
+

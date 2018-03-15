@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.BillDao">
+
+	<insert id="addBill" parameterType="Bill">
+		insert into s_bill (billCode,productName,productUnit,productCount,totalPrice,providerId,isPayment)
+		values(#{billCode},#{productName},#{productUnit},#{productCount},#{totalPrice},#{providerId},#{isPayment})
+	</insert>
+	   
+	<select id="checkAllByPage" resultType="Bill">
+		SELECT b.`bid`,b.`billCode`,b.`productName`,b.`totalPrice`,p.`proname`,b.`isPayment`,b.`createtionDate`,b.providerId
+		FROM `s_bill` b 
+		JOIN `s_provider` p ON b.`providerId` = p.`pid` LIMIT #{index},#{pageSize}
+	</select>
+	
+	<select id="findByBId" resultType="Bill" parameterType="int">
+		SELECT b.`bid`,b.`billCode`,b.`productName`,b.`totalPrice`,b.`productUnit`,b.`productCount`,p.`proname`,b.`isPayment`
+		FROM `s_bill` b 
+		JOIN `s_provider` p ON b.`providerId` = p.`pid`WHERE b.bid=#{bid}
+	</select>
+	
+	<delete id="deleteBill" parameterType="int">
+			delete from s_bill where bid=#{bid}
+	</delete>
+	
+	<select id="getCount" resultType="int">
+		select count(*) from s_bill
+	</select>
+	
+	<select id="checkProName" resultType="Bill">
+		SELECT p.`proname`,b.`providerId`
+		FROM `s_bill` b 
+		JOIN `s_provider` p ON b.`providerId` = p.`pid` GROUP BY b.providerId
+	</select>
+
+	<update id="updateBill" parameterType="Bill" >
+			update s_bill
+			<trim prefix="set" suffixOverrides="," suffix="where bid=#{bid}">
+			<if test="billCode!=null">
+				billCode=#{billCode},
+			</if>
+			
+			<if test="productName!=null">
+				productName=#{productName},
+			</if>
+			
+			<if test="productUnit!=null">
+				productUnit=#{productUnit},
+			</if>	
+			
+			<if test="productCount!=null">
+				productCount=#{productCount},
+			</if>	
+			
+			<if test="totalPrice!=null">
+				totalPrice=#{totalPrice},
+			</if>	
+			
+			<if test="providerId!=0">
+				providerId=#{providerId},
+			</if>
+		</trim>
+	</update>
+	
+	<select id="findByProperties" resultType="Bill">
+		<![CDATA[
+			SELECT b.`bid`,b.`billCode`,b.`productName`,b.`totalPrice`,p.`proname`,b.`isPayment`,b.`createtionDate`
+			FROM `s_bill` b 
+			JOIN `s_provider` p ON b.`providerId` = p.`pid`
+		]]>
+		
+		<where>
+			<if test="bill.productName!=null">
+				<![CDATA[
+					 b.`productName` like concat('%',#{bill.productName},'%')
+				]]>
+			</if>
+			
+			<if test="bill.proName!=null">
+				<![CDATA[
+					and p.`proname`=#{bill.proName}
+				]]>
+			</if>
+			
+			<if test="bill.isPayment!=0">
+				<![CDATA[
+					and b.`isPayment`=#{bill.isPayment}
+				]]>
+			</if>
+		</where>	
+	</select>
+</mapper>
+
